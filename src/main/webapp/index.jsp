@@ -9,7 +9,7 @@
 	</head>
 	<body>
 		<div class="base">
-			<h1>勤怠管理SYSTEM</h1>
+			<h1>勤怠管理SYSTEM</h1>
 			<form action="03_atend.html" method="POST">
 				<table>
 					<tr>
