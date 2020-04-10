@@ -1,0 +1,78 @@
+@charset "UTF-8";
+
+body {
+	background-color : #E6ECF0;
+}
+
+.base {
+	/* width : 358px; */
+	margin-top : 5%;
+	margin-right : auto;
+	margin-left : auto;
+	padding : 40px 0px;
+	background-color : #FFFFFF;
+	/* border-radius : 16px; */
+}
+
+#menu {
+	font-size : 1.17em;
+	text-align : right;
+	margin-top : 0px;
+	margin-bottom : 0px;
+}
+
+#management {
+	text-align : center;
+	border : solid 1px #E6ECF0;
+	border-collapse : collapse;
+}
+
+#management tr {
+	border : solid 1px #E6ECF0;
+}
+
+#management td {
+	border : solid 1px #E6ECF0;
+}
+
+h1 {
+	text-align : center;
+}
+
+p {
+	text-align : center;
+}
+
+table {
+	margin-right : auto;
+	margin-left : auto;
+}
+
+input.filed {
+	background-color : #E8F0FE;
+	border : solid 1px #E6ECF0;
+	border-radius : 4px;
+}
+
+input.button {
+	background-color : #1DA1F2;
+	border : solid 1px #E6ECF0;
+	border-radius : 4px;
+}
+
+input.button:hover {
+	background-color : #006DBF;
+}
+
+span {
+	display : block;
+	text-align : center;
+}
+
+span#clock_date {
+	font-size : 0.2em;
+}
+
+span#clock_time {
+	font-size : 0.4em;
+}
