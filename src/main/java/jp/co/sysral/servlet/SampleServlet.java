@@ -46,6 +46,7 @@ public class SampleServlet extends HttpServlet {
 			out.println(emp.getUnitTime());
 			out.println(emp.getBreakTime());
 			out.println(emp.getAccessId());
+			out.println(emp.isAtendFlag());
 			
 			AttendDAO attDao = new AttendDAO();
 			List<Attend> list = attDao.search(Integer.parseInt(empId));
@@ -58,7 +59,6 @@ public class SampleServlet extends HttpServlet {
 				out.println(att.getRealBreakTime());
 				out.println(att.getOperatingTime());
 				out.println(att.getLocation());
-				out.println(att.isAtendFlag());
 				out.println(att.getEmpId());
 			}
 		} catch(Exception e) {
