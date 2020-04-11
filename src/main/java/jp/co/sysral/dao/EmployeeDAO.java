@@ -30,6 +30,7 @@ public class EmployeeDAO extends DAO {
 			emp.setUnitTime(rs.getString("unit_time"));
 			emp.setBreakTime(rs.getString("break_time"));
 			emp.setAccessId(rs.getString("access_id"));
+			emp.setAtendFlag(rs.getBoolean("atend_flag"));
 		}
 		
 		ps.close();

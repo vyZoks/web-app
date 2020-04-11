@@ -13,6 +13,7 @@ public class Employee {
 	private String unitTime;
 	private String breakTime;
 	private String accessId;
+	private boolean atendFlag;
 	
 	public int getEmpId() {
 		return empId;
@@ -67,6 +68,12 @@ public class Employee {
 	}
 	public void setAccessId(String accessId) {
 		this.accessId = accessId;
+	}
+	public boolean isAtendFlag() {
+		return atendFlag;
+	}
+	public void setAtendFlag(boolean atendFlag) {
+		this.atendFlag = atendFlag;
 	}
 	
 }

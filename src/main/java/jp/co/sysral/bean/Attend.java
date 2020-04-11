@@ -10,7 +10,6 @@ public class Attend {
 	private String realBreakTime;
 	private String operatingTime;
 	private String location;
-	private boolean atendFlag;
 	private int empId;
 	
 	public int getAtendId() {
@@ -48,12 +47,6 @@ public class Attend {
 	}
 	public void setLocation(String location) {
 		this.location = location;
-	}
-	public boolean isAtendFlag() {
-		return atendFlag;
-	}
-	public void setAtendFlag(boolean atendFlag) {
-		this.atendFlag = atendFlag;
 	}
 	public int getEmpId() {
 		return empId;

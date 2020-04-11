@@ -29,7 +29,6 @@ public class AttendDAO extends DAO {
 			att.setRealBreakTime(rs.getString("real_break_time"));
 			att.setOperatingTime(rs.getString("operating_time"));
 			att.setLocation(rs.getString("location"));
-			att.setAtendFlag(rs.getBoolean("atend_flag"));
 			att.setEmpId(rs.getInt("emp_id"));
 			list.add(att);
 		}
