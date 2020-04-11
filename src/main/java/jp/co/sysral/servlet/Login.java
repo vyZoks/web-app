@@ -38,7 +38,7 @@ public class Login extends HttpServlet {
 			} else {
 				HttpSession session = request.getSession();
 				session.setAttribute("accessId", accessId);
-				request.getRequestDispatcher("/atend.jsp").forward(request, response);
+				request.getRequestDispatcher("/attend.jsp").forward(request, response);
 			}
 		} catch(Exception e) {
 			e.printStackTrace(out);
