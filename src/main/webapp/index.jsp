@@ -10,16 +10,16 @@
 	<body>
 		<div class="base">
 			<h1>勤怠管理SYSTEM</h1>
-			<form action="03_atend.html" method="POST">
+			<form action="login" method="POST">
 				<table>
 					<tr>
-						<td><input type="text" class="filed" name="mail" value="" placeholder="メールアドレス"></td>
+					<td><input type="text" class="filed" name="mail" value="" placeholder="メールアドレス"></td>
 					</tr>
 					<tr>
-						<td><input type="password" class="filed" name="pass" value="" placeholder="パスワード"></td>
+					<td><input type="password" class="filed" name="pass" value="" placeholder="パスワード"></td>
 					</tr>
 					<tr>
-						<td><input type="submit" class="button" value="ログイン"></td>
+					<td><input type="submit" class="button" value="ログイン"></td>
 					</tr>
 				</table>
 			</form>
