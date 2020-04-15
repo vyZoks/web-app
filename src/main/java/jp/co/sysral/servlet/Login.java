@@ -17,7 +17,7 @@ import jp.co.sysral.dao.EmployeeDAO;
 @WebServlet(urlPatterns={"/login"})
 public class Login extends HttpServlet {
 
-	private static final long serialVersionUID = 3408197803483488426L;
+	private static final long serialVersionUID = 1L;
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		
@@ -28,16 +28,15 @@ public class Login extends HttpServlet {
 		EmployeeDAO empDao = new EmployeeDAO();
 		
 		try {
-			//従業員情報を検索
+			// 従業員情報を検索
 			Employee emp = empDao.search(mail, pass);
-			//ログイン,セッション管理用のアクセスID
-			String accessId = emp.getAccessId();
 			
-			if (Objects.isNull(accessId)) {
+			if (Objects.isNull(emp.getEmpPass())) {
 				request.getRequestDispatcher("/index.jsp").forward(request, response);
 			} else {
 				HttpSession session = request.getSession();
-				session.setAttribute("accessId", accessId);
+				session.setAttribute("empId", emp.getEmpId());
+				request.setAttribute("atendFlag", emp.isAtendFlag());
 				request.getRequestDispatcher("/attend.jsp").forward(request, response);
 			}
 		} catch(Exception e) {
