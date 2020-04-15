@@ -21,6 +21,7 @@ function clock()
 
     if(mo < 10) mo = "0" + mo;
     if(d < 10) d = "0" + d;
+    if(h < 10) h = "0" + h;
     if(mi < 10) mi = "0" + mi;
     if(s < 10) s = "0" + s;
 
