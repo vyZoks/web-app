@@ -30,58 +30,68 @@ public class AttendManagement extends HttpServlet {
 		int empId = (Integer)session.getAttribute("empId");
 		
 		// 打刻時間(YYYY/MM/DD hh:mm:ss)
-		String atendTime = request.getParameter("atendtime");
-		String date = atendTime.substring(0, 10);
+		String punchTime = request.getParameter("punchtime");
+		String date = punchTime.substring(0, 10);
 		// String型からTimestamp型への変換
-		Timestamp ts = Utility.conv(atendTime);
+		Timestamp ts = Utility.conv(punchTime);
 		
 		// 出勤状態フラグ(true=出勤中, false=退勤中)
-		boolean atendFlag = Boolean.parseBoolean(request.getParameter("atendflag"));
+		boolean attendFlag = Boolean.parseBoolean(request.getParameter("attendflag"));
 		
 		// DAOクラス
 		AttendDAO attDao = new AttendDAO();
 		EmployeeDAO empDao = new EmployeeDAO();
 		
-		System.out.println("{empId:" + empId + ", atendTime:" + atendTime + ", date:" + date + ", timestamp" + ts + ", atendFlag:" + atendFlag + "}");
+		System.out.println("{empId:" + empId +
+				", punchTime:" + punchTime +
+				", date:" + date +
+				", timestamp" + ts +
+				", attendFlag:" + attendFlag + "}");
 		
 		try {
 			Attend att = attDao.search(date, empId);
 			
-			System.out.println("{atendId:" + att.getAtendId() + ", punchIn:" + att.getPunchIn() + ", punchOut:" + att.getPunchOut() + 
-					", realBreakTime:" + att.getRealBreakTime() + ", operatingTime:" + att.getOperatingTime() + ", location:" + att.getLocation()
-					+ ", empId:" + att.getEmpId() + "}");
+			System.out.println("{attendId:" + att.getAttendId() +
+					", attendanceTime:" + att.getAttendanceTime() +
+					", leavingTime:" + att.getLeavingTime() +
+					", actualRestTime:" + att.getActualRestTime() +
+					", operatingHours:" + att.getOperatingHours() +
+					", location:" + att.getLocation() +
+					", empId:" + att.getEmpId() + "}");
 			
-			if (atendFlag == false) {
+			if (attendFlag == false) {
 				// 出勤処理 false(退勤中) => true (出勤中)
-				if(att.getAtendId() == 0) {
-					// レコード追加
+				if(att.getAttendId() == 0) {
 					System.out.println("出勤処理開始:登録");
-					attDao.insert(ts, empId);
-					empDao.update(true, empId);
+					// 出勤情報新規追加
+					attDao.newAttendanceInfoAddition(ts, empId);
+					empDao.attendanceAndLeavingInfoUpdate(true, empId);
 				} else {
-					// レコード更新
 					System.out.println("出勤処理開始:更新");
-					attDao.update(ts, att.getAtendId(), atendFlag);
-					empDao.update(true, empId);
+					// 出勤情報更新
+					attDao.attendanceInfoUpdate(ts, att.getAttendId());
+					empDao.attendanceAndLeavingInfoUpdate(true, empId);
 				}
 			} else {
 				// 退勤処理 true(出勤中) => false (退勤中)
-				if(att.getAtendId() == 0) {
+				if(att.getAttendId() == 0) {
 					// 日を跨いだ退勤
 					System.out.println("退勤処理開始:更新");
-					// シーケンスの現在値を取得する処理
-					int seq = attDao.currval(empId);
-					attDao.update(ts, seq, atendFlag);
-					empDao.update(false, empId);
+					// シーケンス(attenId)の現在値を取得する処理
+					int attendId = attDao.searchAttendId(empId);
+					// 退勤情報更新
+					attDao.leavingInfoUpdate(ts, attendId);
+					empDao.attendanceAndLeavingInfoUpdate(false, empId);
 				} else {
 					// 日を跨がない退勤
 					System.out.println("退勤処理開始:更新");
-					attDao.update(ts, att.getAtendId(), atendFlag);
-					empDao.update(false, empId);
+					// 退勤情報更新
+					attDao.leavingInfoUpdate(ts, att.getAttendId());
+					empDao.attendanceAndLeavingInfoUpdate(false, empId);
 				}
 			}
 			
-			out.println("処理完了");
+			request.getRequestDispatcher("/attenddetails").forward(request, response);
 			
 		} catch(Exception e) {
 			e.printStackTrace(out);
