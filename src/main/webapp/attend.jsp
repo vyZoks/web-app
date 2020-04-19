@@ -1,5 +1,5 @@
 <%@page contentType="text/html; charset=UTF-8" %>
-<% boolean atendFlag = (Boolean)request.getAttribute("atendFlag"); %>
+<% boolean attendFlag = (Boolean)request.getAttribute("attendFlag"); %>
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -9,11 +9,11 @@
 		<link rel="stylesheet" href="./css/base.css">
 		<script src="./js/clock.js"></script>
 		<script>
-			function getTime(atendflag) {
+			function getTime(attendFlag) {
 				var date = document.getElementById('clock_date').innerHTML;
 				var time = document.getElementById('clock_time').innerHTML;
-				var timestamp = date.substring(0, date.length - 5) + ' ' + time;
-				window.location.href='attendmanagement?atendtime=' + timestamp + '&atendflag=' + atendflag;
+				var punchtime = date.substring(0, date.length - 5) + ' ' + time;
+				window.location.href='attendmanagement?punchtime=' + punchtime + '&attendflag=' + attendflag;
 			}
 		</script>
 	</head>
@@ -25,7 +25,7 @@
 			</div>
 			<table>
 				<tr>
-				<% if (atendFlag == true) { %>
+				<% if (attendFlag == true) { %>
 				<td><input type="submit" class="button" value="出勤" onclick="getTime(false)" disabled></td>
 				<td><input type="submit" class="button" value="退勤" onclick="getTime(true)"></td>
 				<% } else { %>
@@ -34,7 +34,7 @@
 				<% } %>
 				</tr>
 			</table>
-			<p><a href="04_atendtable.html">勤怠管理ページ</a></p>
+			<p><a href="attenddetails">勤怠管理ページ</a></p>
 		</div>
 	</body>
 </html>
