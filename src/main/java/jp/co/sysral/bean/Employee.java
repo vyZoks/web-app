@@ -8,12 +8,11 @@ public class Employee {
 	private String empName;
 	private String mailaddress;
 	private String empPass;
-	private Time startWork;
-	private Time endWork;
-	private String unitTime;
-	private String breakTime;
-	private String accessId;
-	private boolean atendFlag;
+	private Time openingTime;
+	private Time closingTime;
+	private String creditTime;
+	private String restTime;
+	private boolean attendFlag;
 	
 	public int getEmpId() {
 		return empId;
@@ -39,41 +38,35 @@ public class Employee {
 	public void setEmpPass(String empPass) {
 		this.empPass = empPass;
 	}
-	public Time getStartWork() {
-		return startWork;
+	public Time getOpeningTime() {
+		return openingTime;
 	}
-	public void setStartWork(Time startWork) {
-		this.startWork = startWork;
+	public void setOpeningTime(Time openingTime) {
+		this.openingTime = openingTime;
 	}
-	public Time getEndWork() {
-		return endWork;
+	public Time getClosingTime() {
+		return closingTime;
 	}
-	public void setEndWork(Time endWork) {
-		this.endWork = endWork;
+	public void setClosingTime(Time closingTime) {
+		this.closingTime = closingTime;
 	}
-	public String getUnitTime() {
-		return unitTime;
+	public String getCreditTime() {
+		return creditTime;
 	}
-	public void setUnitTime(String unitTime) {
-		this.unitTime = unitTime;
+	public void setCreditTime(String creditTime) {
+		this.creditTime = creditTime;
 	}
-	public String getBreakTime() {
-		return breakTime;
+	public String getRestTime() {
+		return restTime;
 	}
-	public void setBreakTime(String breakTime) {
-		this.breakTime = breakTime;
+	public void setRestTime(String restTime) {
+		this.restTime = restTime;
 	}
-	public String getAccessId() {
-		return accessId;
+	public boolean isAttendFlag() {
+		return attendFlag;
 	}
-	public void setAccessId(String accessId) {
-		this.accessId = accessId;
-	}
-	public boolean isAtendFlag() {
-		return atendFlag;
-	}
-	public void setAtendFlag(boolean atendFlag) {
-		this.atendFlag = atendFlag;
+	public void setAttendFlag(boolean attendFlag) {
+		this.attendFlag = attendFlag;
 	}
 	
 }

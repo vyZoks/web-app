@@ -4,43 +4,43 @@ import java.sql.Timestamp;
 
 public class Attend {
 
-	private int atendId;
-	private Timestamp punchIn;
-	private Timestamp punchOut;
-	private String realBreakTime;
-	private String operatingTime;
+	private int attendId;
+	private Timestamp attendanceTime;
+	private Timestamp leavingTime;
+	private String actualRestTime;
+	private String operatingHours;
 	private String location;
 	private int empId;
 	
-	public int getAtendId() {
-		return atendId;
+	public int getAttendId() {
+		return attendId;
 	}
-	public void setAtendId(int atendId) {
-		this.atendId = atendId;
+	public void setAttendId(int attendId) {
+		this.attendId = attendId;
 	}
-	public Timestamp getPunchIn() {
-		return punchIn;
+	public Timestamp getAttendanceTime() {
+		return attendanceTime;
 	}
-	public void setPunchIn(Timestamp punchIn) {
-		this.punchIn = punchIn;
+	public void setAttendanceTime(Timestamp attendanceTime) {
+		this.attendanceTime = attendanceTime;
 	}
-	public Timestamp getPunchOut() {
-		return punchOut;
+	public Timestamp getLeavingTime() {
+		return leavingTime;
 	}
-	public void setPunchOut(Timestamp punchOut) {
-		this.punchOut = punchOut;
+	public void setLeavingTime(Timestamp leavingTime) {
+		this.leavingTime = leavingTime;
 	}
-	public String getRealBreakTime() {
-		return realBreakTime;
+	public String getActualRestTime() {
+		return actualRestTime;
 	}
-	public void setRealBreakTime(String realBreakTime) {
-		this.realBreakTime = realBreakTime;
+	public void setActualRestTime(String actualRestTime) {
+		this.actualRestTime = actualRestTime;
 	}
-	public String getOperatingTime() {
-		return operatingTime;
+	public String getOperatingHours() {
+		return operatingHours;
 	}
-	public void setOperatingTime(String operatingTime) {
-		this.operatingTime = operatingTime;
+	public void setOperatingHours(String operatingHours) {
+		this.operatingHours = operatingHours;
 	}
 	public String getLocation() {
 		return location;
