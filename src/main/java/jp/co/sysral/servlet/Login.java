@@ -36,7 +36,7 @@ public class Login extends HttpServlet {
 			} else {
 				HttpSession session = request.getSession();
 				session.setAttribute("empId", emp.getEmpId());
-				request.setAttribute("atendFlag", emp.isAtendFlag());
+				request.setAttribute("attendFlag", emp.isAttendFlag());
 				request.getRequestDispatcher("/attend.jsp").forward(request, response);
 			}
 		} catch(Exception e) {
