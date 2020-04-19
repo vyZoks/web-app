@@ -26,12 +26,11 @@ public class EmployeeDAO extends DAO {
 			emp.setEmpName(rs.getString("emp_name"));
 			emp.setMailaddress(rs.getString("mailaddress"));
 			emp.setEmpPass(rs.getString("emp_pass"));
-			emp.setStartWork(rs.getTime("start_work"));
-			emp.setEndWork(rs.getTime("end_work"));
-			emp.setUnitTime(rs.getString("unit_time"));
-			emp.setBreakTime(rs.getString("break_time"));
-			emp.setAccessId(rs.getString("access_id"));
-			emp.setAtendFlag(rs.getBoolean("atend_flag"));
+			emp.setOpeningTime(rs.getTime("opening_time"));
+			emp.setClosingTime(rs.getTime("closing_time"));
+			emp.setCreditTime(rs.getString("credit_time"));
+			emp.setRestTime(rs.getString("rest_time"));
+			emp.setAttendFlag(rs.getBoolean("attend_flag"));
 		}
 		
 		ps.close();
@@ -40,14 +39,14 @@ public class EmployeeDAO extends DAO {
 		return emp;
 	}
 	
-	// １件更新(出退勤情報)
-	public void update(boolean atendFlag, int empId) throws Exception {
+	// 出退勤フラグの更新
+	public void attendanceAndLeavingInfoUpdate(boolean attendFlag, int empId) throws Exception {
 		
 		Connection co = getConnection();
 		
-		String sql = "UPDATE s_employee SET atend_flag = ? WHERE emp_id = ?";
+		String sql = "UPDATE s_employee SET attend_flag = ? WHERE emp_id = ?";
 		PreparedStatement ps = co.prepareStatement(sql);
-		ps.setBoolean(1, atendFlag);
+		ps.setBoolean(1, attendFlag);
 		ps.setInt(2, empId);
 		int cnt = ps.executeUpdate();
 		

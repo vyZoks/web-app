@@ -25,11 +25,11 @@ public class AttendDAO extends DAO {
 		
 		while (rs.next()) {
 			Attend att = new Attend();
-			att.setAtendId(rs.getInt("atend_id"));
-			att.setPunchIn(rs.getTimestamp("punch_in"));
-			att.setPunchOut(rs.getTimestamp("punch_out"));
-			att.setRealBreakTime(rs.getString("real_break_time"));
-			att.setOperatingTime(rs.getString("operating_time"));
+			att.setAttendId(rs.getInt("attend_id"));
+			att.setAttendanceTime(rs.getTimestamp("attendance_time"));
+			att.setLeavingTime(rs.getTimestamp("leaving_time"));
+			att.setActualRestTime(rs.getString("actual_rest_time"));
+			att.setOperatingHours(rs.getString("operating_hours"));
 			att.setLocation(rs.getString("location"));
 			att.setEmpId(rs.getInt("emp_id"));
 			list.add(att);
@@ -48,18 +48,18 @@ public class AttendDAO extends DAO {
 		
 		Connection co = getConnection();
 		
-		String sql = "SELECT * FROM s_attend WHERE TO_CHAR(punch_in, 'yyyy/mm/dd') LIKE ? AND emp_id = ?";
+		String sql = "SELECT * FROM s_attend WHERE TO_CHAR(attendance_time, 'yyyy/mm/dd') LIKE ? AND emp_id = ?";
 		PreparedStatement ps = co.prepareStatement(sql);
 		ps.setString(1, date + "%");
 		ps.setInt(2, empId);
 		ResultSet rs = ps.executeQuery();
 		
 		while(rs.next()) {
-			att.setAtendId(rs.getInt("atend_id"));
-			att.setPunchIn(rs.getTimestamp("punch_in"));
-			att.setPunchOut(rs.getTimestamp("punch_out"));
-			att.setRealBreakTime(rs.getString("real_break_time"));
-			att.setOperatingTime(rs.getString("operating_time"));
+			att.setAttendId(rs.getInt("attend_id"));
+			att.setAttendanceTime(rs.getTimestamp("attendance_time"));
+			att.setLeavingTime(rs.getTimestamp("leaving_time"));
+			att.setActualRestTime(rs.getString("actual_rest_time"));
+			att.setOperatingHours(rs.getString("operating_hours"));
 			att.setLocation(rs.getString("location"));
 			att.setEmpId(rs.getInt("emp_id"));
 		}
@@ -70,63 +70,73 @@ public class AttendDAO extends DAO {
 		return att;
 	}
 	
-	// １件登録(出勤情報)
-	public void insert(Timestamp atendTime, int empId) throws Exception {
+	// 出勤情報新規追加
+	public void newAttendanceInfoAddition(Timestamp date, int empId) throws Exception {
 		
 		Connection co = getConnection();
 		
-		String sql = "INSERT INTO s_attend(punch_in, emp_id) VALUES (?, ?)";
+		String sql = "INSERT INTO s_attend(attendance_time, emp_id) VALUES (?, ?)";
 		PreparedStatement ps = co.prepareStatement(sql);
-		ps.setTimestamp(1, atendTime);
+		ps.setTimestamp(1, date);
 		ps.setInt(2, empId);
 		int cnt = ps.executeUpdate();
 		
-		System.out.println(cnt + "件のデータを登録しました。");
+		System.out.println("出勤情報" + cnt + "件を登録しました。");
 		
 		ps.close();
 		co.close();
 	}
 	
-	// １件更新(出退勤情報)
-	public void update(Timestamp atendTime, int atendId, boolean atendFlag) throws Exception {
+	// 出勤情報更新
+	public void attendanceInfoUpdate(Timestamp date, int attendId) throws Exception {
 		
 		Connection co = getConnection();
-		String sql = "";
+		String sql = "UPDATE s_attend SET attendance_time = ? WHERE attend_id = ?";
 		
-		if (atendFlag == false) {
-			// 出勤処理(false = 退勤中)
-			sql = "UPDATE s_attend SET punch_in = ? WHERE atend_id = ?";
-		} else {
-			// 退勤処理(true = 出勤中)
-			sql = "UPDATE s_attend SET punch_out = ? WHERE atend_id = ?";
-		}
 		PreparedStatement ps = co.prepareStatement(sql);
-		ps.setTimestamp(1, atendTime);
-		ps.setInt(2, atendId);
+		ps.setTimestamp(1, date);
+		ps.setInt(2, attendId);
 		int cnt = ps.executeUpdate();
 		
-		System.out.println(cnt + "件のデータを更新しました。");
+		System.out.println("出勤情報" + cnt + "件を更新しました。");
 		
 		ps.close();
 		co.close();
 	}
 	
-	// シーケンスの現在値取得
-	public int currval(int empId) throws Exception {
+	// 退勤情報更新
+	public void leavingInfoUpdate(Timestamp date, int attendId) throws Exception {
+		
+		Connection co = getConnection();
+		String sql = "UPDATE s_attend SET leaving_time = ? WHERE attend_id = ?";
+		
+		PreparedStatement ps = co.prepareStatement(sql);
+		ps.setTimestamp(1, date);
+		ps.setInt(2, attendId);
+		int cnt = ps.executeUpdate();
+		
+		System.out.println("退勤情報" + cnt + "件を更新しました。");
+		
+		ps.close();
+		co.close();
+	}
+	
+	// シーケンス(attenId)の現在値を取得する処理
+	public int searchAttendId(int empId) throws Exception {
 		
 		Connection co = getConnection();
 		int seq = 0;
 		
-		String sql = "SELECT MAX(atend_id) AS atend_id FROM s_attend WHERE emp_id = ?";
+		String sql = "SELECT MAX(attend_id) AS attend_id FROM s_attend WHERE emp_id = ?";
 		PreparedStatement ps = co.prepareStatement(sql);
 		ps.setInt(1, empId);
 		ResultSet rs = ps.executeQuery();
 		
 		while (rs.next()) {
-			seq = rs.getInt("atend_id");
+			seq = rs.getInt("attend_id");
 		}
 		
-		System.out.println("{atend_id_seq:" + seq + "}");
+		System.out.println("{attend_id_seq:" + seq + "}");
 		ps.close();
 		co.close();
 		
