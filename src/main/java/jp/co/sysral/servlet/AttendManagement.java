@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import jp.co.sysral.bean.Attend;
+import jp.co.sysral.bean.Employee;
 import jp.co.sysral.dao.AttendDAO;
 import jp.co.sysral.dao.EmployeeDAO;
 import jp.co.sysral.util.Utility;
@@ -50,6 +51,7 @@ public class AttendManagement extends HttpServlet {
 		
 		try {
 			Attend att = attDao.search(date, empId);
+			Employee emp = empDao.search(empId);
 			
 			System.out.println("{attendId:" + att.getAttendId() +
 					", attendanceTime:" + att.getAttendanceTime() +
@@ -79,14 +81,22 @@ public class AttendManagement extends HttpServlet {
 					System.out.println("退勤処理開始:更新");
 					// シーケンス(attenId)の現在値を取得する処理
 					int attendId = attDao.searchAttendId(empId);
+					// 実稼働時間の算出
+					String operatingHours = Utility.getOperatingHours(att.getAttendanceTime(), ts, emp.getOpeningTime(), emp.getClosingTime(),
+							emp.getCreditTime(), emp.getRestTime());
+					System.out.println(operatingHours);
 					// 退勤情報更新
-					attDao.leavingInfoUpdate(ts, attendId);
+					attDao.leavingInfoUpdate(ts, emp.getRestTime(), operatingHours, attendId);
 					empDao.attendanceAndLeavingInfoUpdate(false, empId);
 				} else {
 					// 日を跨がない退勤
 					System.out.println("退勤処理開始:更新");
+					// 実稼働時間の算出
+					String operatingHours = Utility.getOperatingHours(att.getAttendanceTime(), ts, emp.getOpeningTime(), emp.getClosingTime(),
+							emp.getCreditTime(), emp.getRestTime());
+					System.out.println(operatingHours);
 					// 退勤情報更新
-					attDao.leavingInfoUpdate(ts, att.getAttendId());
+					attDao.leavingInfoUpdate(ts, emp.getRestTime(), operatingHours, att.getAttendId());
 					empDao.attendanceAndLeavingInfoUpdate(false, empId);
 				}
 			}

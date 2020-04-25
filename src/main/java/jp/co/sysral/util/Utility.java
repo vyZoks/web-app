@@ -20,10 +20,23 @@ public class Utility {
 		}
 	}
 	
+	// Time型をTimestamp型に変換する
+	@SuppressWarnings("deprecation")
+	public static Timestamp conv(Timestamp timestamp, Time time) {
+		
+		if (Objects.isNull(time)) new Timestamp(0L);
+		
+		Timestamp ts = new Timestamp(time.getTime());
+		ts.setYear(timestamp.getYear());
+		ts.setMonth(timestamp.getMonth());
+		ts.setDate(timestamp.getDate());
+		return ts;
+	}
+	
 	// Timestamp型から日付をString型で返却する
 	public static String getDate(Timestamp date) {
 		
-		if(Objects.isNull(date)) return null;
+		if (Objects.isNull(date)) return null;
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd");
 		return sdf.format(date);
@@ -32,7 +45,7 @@ public class Utility {
 	// Timestamp型から時間をString型で返却する
 	public static String getTime(Timestamp date) {
 		
-		if(Objects.isNull(date)) return null;
+		if (Objects.isNull(date)) return null;
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 		return sdf.format(date);
@@ -41,47 +54,50 @@ public class Utility {
 	// 出勤時間と退勤時間から稼働時間を算出する
 	public static String getOperatingHours(Timestamp attendance, Timestamp leaving, Time opening, Time closing, String credit, String rest) {
 		
-		// 実出勤時間または実退勤時間がnullの場合
-		if(Objects.isNull(attendance) || Objects.isNull(leaving)) return null;
 		// 出勤時間または退勤時間がnullの場合
-		if(Objects.isNull(opening) || Objects.isNull(closing)) return null;
+		if (Objects.isNull(attendance) || Objects.isNull(leaving)) return null;
+		// 始業時間または終業時間がnullの場合
+		if (Objects.isNull(opening) || Objects.isNull(closing)) return null;
 		// 単位時間がnullまたはブランクの場合
-		if(Objects.isNull(credit) || credit.isEmpty()) return null;
+		if (Objects.isNull(credit) || credit.isEmpty()) return null;
 		// 休憩時間がnullまたはブランクの場合
-		if(Objects.isNull(rest) || rest.isEmpty()) return null;
+		if (Objects.isNull(rest) || rest.isEmpty()) return null;
 		
 		Long millisecond = 60L * 60L * 1000L;
 		Long attendanceMillisec = operationHoursAdjustment(attendance, opening, credit);
 		Long leavingMillisec = operationHoursAdjustment(leaving, closing, credit);
-		// 退勤時間(ミリ秒) - 出勤時間(ミリ秒) - 休憩時間(ミリ秒)
-		Long operatingHours = leavingMillisec - attendanceMillisec - (Long.parseLong(rest) * 60L * 1000L);
+		// 稼働時間(ms) = 退勤時間(ms) - 出勤時間(ms)
+		Long operatingHours = leavingMillisec - attendanceMillisec;
 		
-		// 稼働時間(ミリ秒) / 1時間(ミリ秒) = 稼働時間(時間)
-		return String.valueOf(operatingHours.doubleValue() / millisecond.doubleValue());
+		double tmp = operatingHours.doubleValue() / millisecond.doubleValue();
+		if (tmp > 6) operatingHours = operatingHours - (Long.parseLong(rest) * 60L * 1000L);
+		
+		String result = String.valueOf(operatingHours.doubleValue() / millisecond.doubleValue());
+		if (result.length() >= 6) result = result.substring(0, 5);
+		
+		return result;
 	}
 	
-	// 出勤時間または退勤時間から単位時間外の時間を調整する
+	// 出勤時間または退勤時間を単位時間で調整する
+	@SuppressWarnings("deprecation")
 	public static Long operationHoursAdjustment(Timestamp date, Time time, String credit) {
 		
-		// 開始時刻(終了時刻)の差分(ミリ秒)を算出
-		Long diff = time.getTime() - date.getTime();
-		System.out.println("diff:" + diff);
+		date.setSeconds(00);
+		// (1)始業時間(終業時間)と出勤時間(退勤時間)の差分を算出(ms)
+		Long diff = Utility.conv(date, time).getTime() - date.getTime();
 		
-		// ミリ秒(差分)を分に変換
+		// (2) (1)で算出したmsをminutsに変換
 		Long min = diff / (60L * 1000L);
-		System.out.println("min:" + min);
 		
-		// 分 % 単位時間(分)で剰余(分)を算出
+		// (3) (2)で算出したminuts(分)をcredittime(単位時間:分)で割って剰余(分)を算出
 		Long rem = min % Long.parseLong(credit);
-		System.out.println("rem:" + rem);
 		
-		// 分(剰余)をミリ秒に変換
+		// (4) (3)で算出した剰余(分)をmsに変換
 		Long remMin = rem * (60L * 1000L);
-		System.out.println("remMin:" + remMin);
 		
-		// 剰余が０の場合は実稼働時間(ミリ秒)をそのまま返却
+		// (5) (3)で算出した剰余が０の場合は出勤時間(ms)をそのまま返却
 		if (rem == 0) return date.getTime();
-		// 剰余が０でない場合は実稼働時間から剰余を加減算したものを返却
+		// (5) (3)で算出した剰余が０でない場合は出勤時間(ms)から剰余(ms)を加減算したものを返却
 		if (rem != 0) return date.getTime() + remMin;
 		
 		return 0L;
