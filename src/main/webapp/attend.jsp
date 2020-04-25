@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="./css/base.css">
 		<script src="./js/clock.js"></script>
 		<script>
-			function getTime(attendFlag) {
+			function getTime(attendflag) {
 				var date = document.getElementById('clock_date').innerHTML;
 				var time = document.getElementById('clock_time').innerHTML;
 				var punchtime = date.substring(0, date.length - 5) + ' ' + time;
