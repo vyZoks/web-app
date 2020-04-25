@@ -39,6 +39,36 @@ public class EmployeeDAO extends DAO {
 		return emp;
 	}
 	
+	// １件検索
+	public Employee search(int empId) throws Exception {
+		
+		Employee emp = new Employee();
+		
+		Connection co = getConnection();
+		
+		String sql = "SELECT * FROM s_employee WHERE emp_id = ?";
+		PreparedStatement ps = co.prepareStatement(sql);
+		ps.setInt(1, empId);
+		ResultSet rs = ps.executeQuery();
+		
+		while (rs.next()) {
+			emp.setEmpId(rs.getInt("emp_id"));
+			emp.setEmpName(rs.getString("emp_name"));
+			emp.setMailaddress(rs.getString("mailaddress"));
+			emp.setEmpPass(rs.getString("emp_pass"));
+			emp.setOpeningTime(rs.getTime("opening_time"));
+			emp.setClosingTime(rs.getTime("closing_time"));
+			emp.setCreditTime(rs.getString("credit_time"));
+			emp.setRestTime(rs.getString("rest_time"));
+			emp.setAttendFlag(rs.getBoolean("attend_flag"));
+		}
+		
+		ps.close();
+		co.close();
+		
+		return emp;
+	}
+	
 	// 出退勤フラグの更新
 	public void attendanceAndLeavingInfoUpdate(boolean attendFlag, int empId) throws Exception {
 		
