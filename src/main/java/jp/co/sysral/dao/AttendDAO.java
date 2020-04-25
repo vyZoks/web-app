@@ -54,7 +54,7 @@ public class AttendDAO extends DAO {
 		ps.setInt(2, empId);
 		ResultSet rs = ps.executeQuery();
 		
-		while(rs.next()) {
+		while (rs.next()) {
 			att.setAttendId(rs.getInt("attend_id"));
 			att.setAttendanceTime(rs.getTimestamp("attendance_time"));
 			att.setLeavingTime(rs.getTimestamp("leaving_time"));
@@ -105,14 +105,16 @@ public class AttendDAO extends DAO {
 	}
 	
 	// 退勤情報更新
-	public void leavingInfoUpdate(Timestamp date, int attendId) throws Exception {
+	public void leavingInfoUpdate(Timestamp date, String actualRestTime, String operatingHours, int attendId) throws Exception {
 		
 		Connection co = getConnection();
-		String sql = "UPDATE s_attend SET leaving_time = ? WHERE attend_id = ?";
+		String sql = "UPDATE s_attend SET leaving_time = ?, actual_rest_time = ?, operating_hours = ? WHERE attend_id = ?";
 		
 		PreparedStatement ps = co.prepareStatement(sql);
 		ps.setTimestamp(1, date);
-		ps.setInt(2, attendId);
+		ps.setString(2, actualRestTime);
+		ps.setString(3, operatingHours);
+		ps.setInt(4, attendId);
 		int cnt = ps.executeUpdate();
 		
 		System.out.println("退勤情報" + cnt + "件を更新しました。");
