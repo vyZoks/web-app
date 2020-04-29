@@ -23,7 +23,7 @@
 					</tr>
 				</table>
 			</form>
-			<p><a href="02_adduser.html">新規ユーザー登録</a></p>
+			<p><a href="useradd.jsp">新規ユーザー登録</a></p>
 		</div>
 	</body>
 </html>
