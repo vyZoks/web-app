@@ -32,80 +32,84 @@ public class AttendManagement extends HttpServlet {
 		
 		// 打刻時間(YYYY/MM/DD hh:mm:ss)
 		String punchTime = request.getParameter("punchtime");
-		String date = punchTime.substring(0, 10);
+		String punchTimeDate = punchTime.substring(0, 10);
 		// String型からTimestamp型への変換
-		Timestamp ts = Utility.conv(punchTime);
+		Timestamp timestamp = Utility.conv(punchTime.substring(0, 16));
 		
 		// 出勤状態フラグ(true=出勤中, false=退勤中)
 		boolean attendFlag = Boolean.parseBoolean(request.getParameter("attendflag"));
 		
 		// DAOクラス
-		AttendDAO attDao = new AttendDAO();
-		EmployeeDAO empDao = new EmployeeDAO();
+		AttendDAO attendDAO = new AttendDAO();
+		EmployeeDAO employeeDAO = new EmployeeDAO();
 		
-		System.out.println("{empId:" + empId +
-				", punchTime:" + punchTime +
-				", date:" + date +
-				", timestamp" + ts +
-				", attendFlag:" + attendFlag + "}");
+		System.out.println("{empId : " + empId +
+				", punchTime : " + punchTime +
+				", punchTimeDate : " + punchTimeDate +
+				", timestamp : " + timestamp +
+				", attendFlag : " + attendFlag + "}");
 		
 		try {
-			Attend att = attDao.search(date, empId);
-			Employee emp = empDao.search(empId);
+			Attend attend = attendDAO.search(punchTimeDate, empId);
+			Employee employee = employeeDAO.search(empId);
 			
-			System.out.println("{attendId:" + att.getAttendId() +
-					", attendanceTime:" + att.getAttendanceTime() +
-					", leavingTime:" + att.getLeavingTime() +
-					", actualRestTime:" + att.getActualRestTime() +
-					", operatingHours:" + att.getOperatingHours() +
-					", location:" + att.getLocation() +
-					", empId:" + att.getEmpId() + "}");
+			System.out.println("{attendId:" + attend.getAttendId() +
+					", attendanceTime:" + attend.getAttendanceTime() +
+					", leavingTime:" + attend.getLeavingTime() +
+					", actualRestTime:" + attend.getActualRestTime() +
+					", operatingHours:" + attend.getOperatingHours() +
+					", location:" + attend.getLocation() +
+					", empId:" + attend.getEmpId() + "}");
 			
 			if (attendFlag == false) {
 				// 出勤処理 false(退勤中) => true (出勤中)
-				if(att.getAttendId() == 0) {
+				attend.setAttendanceTime(timestamp);
+				attend.setLeavingTime(null);
+				attend.setActualRestTime(null);
+				attend.setOperatingHours(null);
+				attend.setEmpId(empId);
+				if(attend.getAttendId() == 0) {
 					System.out.println("出勤処理開始:登録");
-					// 出勤情報新規追加
-					attDao.newAttendanceInfoAddition(ts, empId);
-					empDao.attendanceAndLeavingInfoUpdate(true, empId);
+					// 出勤情報登録
+					attendDAO.insert(attend);
+					employeeDAO.attendanceAndLeavingInfoUpdate(true, empId);
 				} else {
 					System.out.println("出勤処理開始:更新");
 					// 出勤情報更新
-					attDao.attendanceInfoUpdate(ts, att.getAttendId());
-					empDao.attendanceAndLeavingInfoUpdate(true, empId);
+					attendDAO.update(attend);
+					employeeDAO.attendanceAndLeavingInfoUpdate(true, empId);
 				}
 			} else {
 				// 退勤処理 true(出勤中) => false (退勤中)
-				if(att.getAttendId() == 0) {
+				attend.setLeavingTime(timestamp);
+				attend.setActualRestTime(employee.getRestTime());
+				if(attend.getAttendId() == 0) {
 					// 日を跨いだ退勤
 					System.out.println("退勤処理開始:更新");
-					// シーケンス(attenId)の現在値を取得する処理
-					int attendId = attDao.searchAttendId(empId);
+					// シーケンス(attenId)の現在値を取得
+					int attendId = attendDAO.searchAttendId(empId);
+					attend.setAttendId(attendId);
 					// 実稼働時間の算出
-					String operatingHours = Utility.getOperatingHours(att.getAttendanceTime(), ts, emp.getOpeningTime(), emp.getClosingTime(),
-							emp.getCreditTime(), emp.getRestTime());
-					System.out.println(operatingHours);
+					String operatingHours = Utility.getOperatingHours(attend, employee.getCreditTime());
+					attend.setOperatingHours(operatingHours);
 					// 退勤情報更新
-					attDao.leavingInfoUpdate(ts, emp.getRestTime(), operatingHours, attendId);
-					empDao.attendanceAndLeavingInfoUpdate(false, empId);
+					attendDAO.update(attend);
+					employeeDAO.attendanceAndLeavingInfoUpdate(false, empId);
 				} else {
 					// 日を跨がない退勤
 					System.out.println("退勤処理開始:更新");
 					// 実稼働時間の算出
-					String operatingHours = Utility.getOperatingHours(att.getAttendanceTime(), ts, emp.getOpeningTime(), emp.getClosingTime(),
-							emp.getCreditTime(), emp.getRestTime());
-					System.out.println(operatingHours);
+					String operatingHours = Utility.getOperatingHours(attend, employee.getCreditTime());
+					attend.setOperatingHours(operatingHours);
 					// 退勤情報更新
-					attDao.leavingInfoUpdate(ts, emp.getRestTime(), operatingHours, att.getAttendId());
-					empDao.attendanceAndLeavingInfoUpdate(false, empId);
+					attendDAO.update(attend);
+					employeeDAO.attendanceAndLeavingInfoUpdate(false, empId);
 				}
 			}
 			
 			request.getRequestDispatcher("/attenddetails").forward(request, response);
-			
 		} catch(Exception e) {
 			e.printStackTrace(out);
 		}
 	}
-
 }
