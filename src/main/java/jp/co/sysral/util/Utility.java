@@ -5,74 +5,97 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
 
+import jp.co.sysral.bean.Attend;
+
 public class Utility {
 
 	// String型をTimestamp型に変換する
 	public static Timestamp conv(String date) {
 		
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			Timestamp ts = new Timestamp(sdf.parse(date).getTime());
-			return ts;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+			Timestamp timestamp = new Timestamp(sdf.parse(date).getTime());
+			return timestamp;
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	// Time型をTimestamp型に変換する
-	@SuppressWarnings("deprecation")
-	public static Timestamp conv(Timestamp timestamp, Time time) {
+	// Timestamp型をString型に変換する
+	public static String conv(Timestamp timestamp) {
 		
-		if (Objects.isNull(time)) new Timestamp(0L);
+		if (Objects.isNull(timestamp)) return null;
 		
-		Timestamp ts = new Timestamp(time.getTime());
-		ts.setYear(timestamp.getYear());
-		ts.setMonth(timestamp.getMonth());
-		ts.setDate(timestamp.getDate());
-		return ts;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		return sdf.format(timestamp).replace(" ", "T");
+	}
+	
+	// yyyy-MM-ddTHH:mmをyyyy/MM/dd HH:mmに変換
+	public static String format(String date) {
+		
+		String tmp = date.replace("-", "/").replace("T", " ");
+		StringBuilder sb = new StringBuilder(tmp);
+		
+		return sb.toString();
 	}
 	
 	// Timestamp型から日付をString型で返却する
-	public static String getDate(Timestamp date) {
+	public static String getDate(Timestamp timestamp) {
 		
-		if (Objects.isNull(date)) return null;
+		if (Objects.isNull(timestamp)) return null;
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd");
-		return sdf.format(date);
+		return sdf.format(timestamp);
 	}
 	
 	// Timestamp型から時間をString型で返却する
-	public static String getTime(Timestamp date) {
+	public static String getTime(Timestamp timestamp) {
 		
-		if (Objects.isNull(date)) return null;
+		if (Objects.isNull(timestamp)) return null;
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-		return sdf.format(date);
+		return sdf.format(timestamp);
+	}
+	
+	// String型をTime型に変換する
+	public static Time getTime(String date) {
+		
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+			Time time = new Time(sdf.parse(date).getTime());
+			return time;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	// 出勤時間と退勤時間から稼働時間を算出する
-	public static String getOperatingHours(Timestamp attendance, Timestamp leaving, Time opening, Time closing, String credit, String rest) {
+	public static String getOperatingHours(Attend attend, String creditTime) {
 		
 		// 出勤時間または退勤時間がnullの場合
-		if (Objects.isNull(attendance) || Objects.isNull(leaving)) return null;
-		// 始業時間または終業時間がnullの場合
-		if (Objects.isNull(opening) || Objects.isNull(closing)) return null;
+		if (Objects.isNull(attend.getAttendanceTime()) || Objects.isNull(attend.getLeavingTime())) return null;
 		// 単位時間がnullまたはブランクの場合
-		if (Objects.isNull(credit) || credit.isEmpty()) return null;
+		if (Objects.isNull(creditTime) || creditTime.isEmpty()) return null;
 		// 休憩時間がnullまたはブランクの場合
-		if (Objects.isNull(rest) || rest.isEmpty()) return null;
+		if (Objects.isNull(attend.getActualRestTime()) || attend.getActualRestTime().isEmpty()) return null;
 		
 		Long millisecond = 60L * 60L * 1000L;
-		Long attendanceMillisec = operationHoursAdjustment(attendance, opening, credit);
-		Long leavingMillisec = operationHoursAdjustment(leaving, closing, credit);
+		Long restMillisec = Long.parseLong(attend.getActualRestTime()) * 60L * 1000L;
+		Long attendanceMillisec = operationHoursAdjustment(attend.getAttendanceTime(), creditTime);
+		Long leavingMillisec = operationHoursAdjustment(attend.getLeavingTime(), creditTime);
 		// 稼働時間(ms) = 退勤時間(ms) - 出勤時間(ms)
 		Long operatingHours = leavingMillisec - attendanceMillisec;
 		
-		double tmp = operatingHours.doubleValue() / millisecond.doubleValue();
-		if (tmp > 6) operatingHours = operatingHours - (Long.parseLong(rest) * 60L * 1000L);
+		if (operatingHours > restMillisec) {
+			operatingHours = operatingHours - restMillisec;
+		} else {
+			attend.setActualRestTime("0");
+		}
 		
 		String result = String.valueOf(operatingHours.doubleValue() / millisecond.doubleValue());
+		// 稼働時間の桁数が6桁以上の場合6桁以降を切り捨て
 		if (result.length() >= 6) result = result.substring(0, 5);
 		
 		return result;
@@ -80,25 +103,21 @@ public class Utility {
 	
 	// 出勤時間または退勤時間を単位時間で調整する
 	@SuppressWarnings("deprecation")
-	public static Long operationHoursAdjustment(Timestamp date, Time time, String credit) {
+	public static Long operationHoursAdjustment(Timestamp timestamp, String creditTime) {
 		
-		date.setSeconds(00);
-		// (1)始業時間(終業時間)と出勤時間(退勤時間)の差分を算出(ms)
-		Long diff = Utility.conv(date, time).getTime() - date.getTime();
+		// (1)出勤時間(退勤時間)の分数を算出(分)
+		int min = timestamp.getMinutes();
 		
-		// (2) (1)で算出したmsをminutsに変換
-		Long min = diff / (60L * 1000L);
+		// (2) min(分)をcredit(分:単位時間)で割って剰余(分)を算出
+		int rem = min % Integer.parseInt(creditTime);
 		
-		// (3) (2)で算出したminuts(分)をcredittime(単位時間:分)で割って剰余(分)を算出
-		Long rem = min % Long.parseLong(credit);
-		
-		// (4) (3)で算出した剰余(分)をmsに変換
+		// (3) (2)で算出した剰余(分)をmsに変換
 		Long remMin = rem * (60L * 1000L);
 		
-		// (5) (3)で算出した剰余が０の場合は出勤時間(ms)をそのまま返却
-		if (rem == 0) return date.getTime();
-		// (5) (3)で算出した剰余が０でない場合は出勤時間(ms)から剰余(ms)を加減算したものを返却
-		if (rem != 0) return date.getTime() + remMin;
+		// (4) (3)で算出した剰余が０の場合は出勤時間(ms)をそのまま返却
+		if (rem == 0) return timestamp.getTime();
+		// (4) (3)で算出した剰余が０でない場合は出勤時間(ms)から剰余(ms)を減算したものを返却
+		if (rem != 0) return timestamp.getTime() - remMin;
 		
 		return 0L;
 	}
