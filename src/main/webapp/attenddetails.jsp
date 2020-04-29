@@ -13,18 +13,20 @@ List<Attend> attendList=(List<Attend>)request.getAttribute("attendList");
 		<title>勤怠管理SYSTEM</title>
 		<link rel="stylesheet" href="./css/base.css">
 		<script>
-			function modify() {
-				window.confirm('更新してよろしいですか？');
-			}
-			function remove() {
-				window.confirm('削除してよろしいですか？');
+			function modify(attendid) {
+				window.confirm(attendid + '更新してよろしいですか？');
+				window.location.href='attendupdateconfirmation?attendid=' + attendid;
+			};
+			function remove(attendid) {
+				window.confirm(attendid + '削除してよろしいですか？');
+				window.location.href='attenddeleteconfirmation?attendid=' + attendid;
 			};
 		</script>
 	</head>
 	<body>
 		<span id="menu">
-			<a href="06_userfix.html">アカウント情報修正</a>
-			<a href="01_login.html">ログアウト</a>
+			<a href="userupdateconfirmation">アカウント情報修正</a>
+			<a href="logout">ログアウト</a>
 		</span>
 		<div class="base">
 			<table id="management">
@@ -33,11 +35,28 @@ List<Attend> attendList=(List<Attend>)request.getAttribute("attendList");
 				<tr>
 					<td><%=Utility.getDate(v.getAttendanceTime()) %></td>
 					<td><%=Utility.getTime(v.getAttendanceTime()) %></td>
-					<td><%=Utility.getTime(v.getLeavingTime()) %></td>
-					<td><%=v.getActualRestTime() %></td>
-					<td><%=v.getOperatingHours() %></td>
-					<td><input type="submit" class="button" value="修正" onclick="modify()"></td>
-					<td><input type="button" class="button" value="削除" onclick="remove()"></td>
+					<% if (v.getLeavingTime() == null) { %>
+						<td>-</td>
+					<% } else { %>
+						<td><%=Utility.getTime(v.getLeavingTime()) %></td>
+					<% } %>
+					<% if (v.getActualRestTime() == null || v.getActualRestTime().isEmpty()) { %>
+						<td>-</td>
+					<% } else { %>
+						<td><%=v.getActualRestTime() %></td>
+					<% } %>
+					<% if (v.getOperatingHours() == null || v.getOperatingHours().isEmpty()) { %>
+						<td>-</td>
+					<% } else { %>
+						<td><%=v.getOperatingHours() %></td>
+					<% } %>
+					<% if (v.getLeavingTime() == null) { %>
+						<td><input type="submit" class="button" value="修正" onclick="modify(<%=v.getAttendId() %>)" disabled></td>
+						<td><input type="button" class="button" value="削除" onclick="remove(<%=v.getAttendId() %>)" disabled></td>
+					<% } else { %>
+						<td><input type="submit" class="button" value="修正" onclick="modify(<%=v.getAttendId() %>)"></td>
+						<td><input type="button" class="button" value="削除" onclick="remove(<%=v.getAttendId() %>)"></td>
+					<% } %>
 				</tr>
 				<% } %>
 			</table>
