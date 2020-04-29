@@ -25,11 +25,11 @@ public class Login extends HttpServlet {
 		String mail = request.getParameter("mail");
 		String pass = request.getParameter("pass");
 		
-		EmployeeDAO empDao = new EmployeeDAO();
+		EmployeeDAO employeeDAO = new EmployeeDAO();
 		
 		try {
 			// 従業員情報を検索
-			Employee emp = empDao.search(mail, pass);
+			Employee emp = employeeDAO.search(mail, pass);
 			
 			if (Objects.isNull(emp.getEmpPass())) {
 				request.getRequestDispatcher("/index.jsp").forward(request, response);
