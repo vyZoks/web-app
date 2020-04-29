@@ -69,7 +69,7 @@ public class EmployeeDAO extends DAO {
 		return emp;
 	}
 	
-	// 出退勤フラグの更新
+	// 出勤(退勤)フラグの更新
 	public void attendanceAndLeavingInfoUpdate(boolean attendFlag, int empId) throws Exception {
 		
 		Connection co = getConnection();
@@ -81,7 +81,49 @@ public class EmployeeDAO extends DAO {
 		int cnt = ps.executeUpdate();
 		
 		System.out.println(cnt + "件のデータを更新しました。");
+		ps.close();
+		co.close();
+	}
+	
+	// 登録
+	public void insert(Employee employee) throws Exception {
 		
+		Connection co = getConnection();
+		
+		String sql = "INSERT INTO s_employee(emp_name, mailaddress, emp_pass, opening_time, closing_time, credit_time, rest_time, attend_flag) VALUES (?, ?, ?, ?, ?, ?, ? ,?)";
+		PreparedStatement ps = co.prepareStatement(sql);
+		ps.setString(1, employee.getEmpName());
+		ps.setString(2, employee.getMailaddress());
+		ps.setString(3, employee.getEmpPass());
+		ps.setTime(4, employee.getOpeningTime());
+		ps.setTime(5, employee.getClosingTime());
+		ps.setString(6, employee.getCreditTime());
+		ps.setString(7, employee.getRestTime());
+		ps.setBoolean(8, employee.isAttendFlag());
+		int cnt = ps.executeUpdate();
+		
+		System.out.println(cnt + "件のデータを登録しました。");
+		ps.close();
+		co.close();
+	}
+	// 更新
+	public void update(Employee employee) throws Exception {
+		
+		Connection co = getConnection();
+		
+		String sql = "UPDATE s_employee SET emp_name = ?, mailaddress = ?, emp_pass = ?, opening_time = ?, closing_time = ?, credit_time = ?, rest_time = ? WHERE emp_id = ?";
+		PreparedStatement ps = co.prepareStatement(sql);
+		ps.setString(1, employee.getEmpName());
+		ps.setString(2, employee.getMailaddress());
+		ps.setString(3, employee.getEmpPass());
+		ps.setTime(4, employee.getOpeningTime());
+		ps.setTime(5, employee.getClosingTime());
+		ps.setString(6, employee.getCreditTime());
+		ps.setString(7, employee.getRestTime());
+		ps.setInt(8, employee.getEmpId());
+		int cnt = ps.executeUpdate();
+		
+		System.out.println(cnt + "件のデータを更新しました。");
 		ps.close();
 		co.close();
 	}
