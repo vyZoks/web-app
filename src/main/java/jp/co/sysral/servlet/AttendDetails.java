@@ -26,11 +26,11 @@ public class AttendDetails extends HttpServlet {
 		HttpSession session = request.getSession();
 		int empId = (Integer)session.getAttribute("empId");
 		
-		AttendDAO attDao = new AttendDAO();
+		AttendDAO attendDAO = new AttendDAO();
 		
 		try {
 			System.out.println("一覧取得開始");
-			List<Attend> attendList = attDao.search(empId);
+			List<Attend> attendList = attendDAO.allSearch(empId);
 			System.out.println("一覧取得終了");
 			
 			request.setAttribute("attendList", attendList);
@@ -38,5 +38,9 @@ public class AttendDetails extends HttpServlet {
 		} catch(Exception e) {
 			e.printStackTrace(out);
 		}
+	}
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		this.doGet(request, response);
 	}
 }
